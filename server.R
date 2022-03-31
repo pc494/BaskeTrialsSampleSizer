@@ -1,5 +1,7 @@
 function(input, output, session){
-  output$curve_plot <- renderPlot({
-    curve(x^input$Figure_Number, from = -5, to = 5)
-  })
+  
 }
+
+#observeEvent(input$min, {
+#  updateSliderInput(inputId = "n", min = input$min)
+#})  
