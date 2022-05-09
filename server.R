@@ -1,5 +1,5 @@
 function(input, output, session){
-  output$var <- renderUI({
+  output$variance <- renderUI({
     tags <- tagList()
     for (i in seq_len(input$K)) {
       tags[[i]] <- numericInput(paste0('K', i), 
@@ -8,8 +8,14 @@ function(input, output, session){
     }
     tags
   })
+  output$allocratio <- renderUI({
+    tags <- tagList()
+    for (i in seq_len(input$K)) {
+      tags[[i]] <- numericInput(paste0('K', i), 
+                                paste0('R', i),
+                                0)
+    }
+    tags
+  })
+  
 }
-
-#observeEvent(input$min, {
-#  updateSliderInput(inputId = "n", min = input$min)
-#})  
