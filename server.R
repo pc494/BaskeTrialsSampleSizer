@@ -3,7 +3,7 @@ function(input, output, session){
     tags <- tagList()
     for (i in seq_len(input$K)) {
       tags[[i]] <- numericInput(paste0('K', i), 
-                                paste0('Sigma Value ', i),
+                                paste0('\u03C3', i),
                                 0)
     }
     tags
