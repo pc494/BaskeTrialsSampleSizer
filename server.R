@@ -3,8 +3,8 @@ function(input, output, session){
     tags <- tagList()
     for (i in seq_len(input$K)) {
       tags[[i]] <- numericInput(paste0('K', i), 
-                                paste0('\u03C3', i),
-                                0)
+                                HTML(paste0('\u03C3',tags$sub(i))),
+                                value=0)
     }
     tags
   })
@@ -13,7 +13,7 @@ function(input, output, session){
     for (i in seq_len(input$K)) {
       tags[[i]] <- numericInput(paste0('K', i), 
                                 paste0('R', i),
-                                0)
+                                value=0)
     }
     tags
   })
