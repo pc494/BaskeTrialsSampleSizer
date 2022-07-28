@@ -1,34 +1,71 @@
+source("subfun_and_simulators.R")
+
+### OLDCODE: Button to display inputs ####
+#output$value <- renderText({
+#  input$update
+#  s = 2 * input$K
+#  isolate(paste0("K = ",s,", the value of eta is: ", input$eta, " and " , input$use_equal_alloc_ratio_bool))
+#})
+
 function(input, output, session){
-  ### Sigma list ####
+  epsilon <- 0.05
+  
+  ### Sigma List ###
   output$variance <- renderUI({
-    tags <- tagList()
-    for (i in seq_len(input$K)) {
-      tags[[i]] <- numericInput(paste0('K', i),
-                                HTML(paste0('\u03C3_{',i,'}')),
-                                value=0)
-    }
-    tags
+    num <- as.integer(input$K)
+    
+    lapply(1:num, function(i) {
+      numericInput(paste0("var_", i), label = HTML(paste0('\u03C3<sub>',i,'</sub>')), value = 10)
+    })
   })
   ### R list ###
   reactive_use_equal_alloc_ratio<-reactive({input$use_equal_alloc_ratio_bool})
   output$allocratio <- renderUI(
-    if (reactive_use_equal_alloc_ratio()){
+    if (!reactive_use_equal_alloc_ratio()){
       # This means we do not render an R column
     }
     else
     {
-    tags <- tagList()
-    for (i in seq_len(input$K)) {
-      tags[[i]] <- numericInput(paste0('K', i),
-                                paste0('R_{', i,'}'),
-                                value=0.5)
-    }
-    tags
+      num <- as.integer(input$K)
+      
+      lapply(1:num, function(i) {
+        numericInput(paste0("R_", i), label = HTML(paste0('R<sub>',i,'</sub>')), value = 0.5, min = epsilon, max = 1-epsilon, step = 0.05)
+      })
   })
-
-  ### Button to display inputs ####
-  output$value <- renderText({
-    input$update
-    isolate(paste0("K = ",input$K,", the value of eta is: ", input$eta, " and " , input$use_equal_alloc_ratio_bool))
+  
+  # Get character vectors for R and sigma 
+  reactive_K <- reactive({input$K})
+  sigma_vect <- reactive({sapply(1:reactive_K(), function(i) {input[[paste0("var_", i)]]})})
+  
+  r_vect <- reactive({if (!reactive_use_equal_alloc_ratio())
+                        {0.5}
+                    else {
+                        sapply(1:reactive_K(), function(i) {input[[paste0("R_", i)]]})}
   })
+  
+  # Need to calculate the value of n and C in a reactive environment
+  reactive_n = reactive({NoBrwNi(sigma_vect(),r_vect(),input$eta,input$zeta,input$delta,input$ssq)})
+  
+  # write out all the hyper-parameter selections
+  
+  output$desc <- renderText(paste0("Results calculated with \u03B4=",input$delta,", \u03B7=",input$eta,', \u03B6=',input$zeta))
+  
+  # and render a table
+  
+  reactive_implemented_bool <- reactive({input$LoB == 'No'})
+  output$value <- 
+     renderUI(
+      if (reactive_implemented_bool())
+        {
+          renderTable(data.frame('k'=1:input$K,
+                                 '\u03C3<sub>k</sub>'=sigma_vect(),
+                                 'n<sub>R</sub>' = as.integer(reactive_n()+0.5),
+                                 'n<sub>T</sub>'=as.integer(reactive_n()*r_vect()+0.5),
+                                 'n<sub>C</sub>'=as.integer(reactive_n()*(1-r_vect())+0.5),
+                                 check.names=FALSE),
+                                 sanitize.colnames.function = function(x) x)
+        }
+      else{renderText('not implemented')}
+     )
+  
 }
