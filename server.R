@@ -1,6 +1,7 @@
 source("subfun_and_simulators.R")
 
-function(input, output, session){
+function(input, output, session)
+{
   ### This first section deals with adaptive element of the UI that do not involve direct mathematical calculation
   
   # are we using borrowing?
@@ -8,6 +9,7 @@ function(input, output, session){
   
   # write out all the hyper-parameter selections
   output$desc <- renderText(paste0("Results calculated with \u03B4=",input$delta,", \u03B7=",input$eta,', \u03B6=',input$zeta))
+  #output$desc <- renderText(str(r_vect()))
   
   # create the extra table information switch (if and only if we have borrowing turned on)
   
@@ -23,8 +25,7 @@ function(input, output, session){
     label = "Level of Borrowing",
     grid = FALSE,
     force_edges = TRUE,
-    choices = c(
-                "Moderate", "Strong")
+    choices = c("Moderate", "Strong")
   )})
   
   # create a sigma list that varies length with the value of k #
@@ -49,6 +50,7 @@ function(input, output, session){
       
       lapply(1:num, function(i) {
         numericInput(paste0("R_", i), label = HTML(paste0('R<sub>',i,'</sub>')), value = 0.5, min = epsilon, max = 1-epsilon, step = 0.05)
+      
       })
   })
   
@@ -58,17 +60,22 @@ function(input, output, session){
   reactive_K <- reactive({input$K})
   sigma_vect <- reactive({sapply(1:reactive_K(), function(i) {input[[paste0("var_", i)]]})})
   
-  r_vect <- reactive({if (!reactive_use_equal_alloc_ratio())
-                        {replicate(input$K,0.5)} #full vector of 50% allocations
+  r_vect <- reactive({
+                    if (!reactive_use_equal_alloc_ratio()){
+                      #full vector of 50% allocations
+                      replicate(input$K,0.5)
+                      } 
                     else {
-                        sapply(1:reactive_K(), function(i) {input[[paste0("R_", i)]]})}
-  })
+                      # This throws an edge case (harmless error) because the UI 'reacts slower' than the sapply function.
+                      sapply(1:reactive_K(), function(i) {input[[paste0("R_", i)]]})
+                      }
+                    })
 
   ### Now need to calculate results and draw the table. (in development)
   
   reactive_n <- reactive({
     if(!reactive_borrowing()) {
-  NoBrwNi(sigma_vect(),r_vect(),input$eta,input$zeta,input$delta,input$ssq)
+      NoBrwNi(sigma_vect(),r_vect(),input$eta,input$zeta,input$delta,input$ssq)
       }
     })
   
