@@ -70,24 +70,90 @@ function(input, output, session)
                       sapply(1:reactive_K(), function(i) {input[[paste0("R_", i)]]})
                       }
                     })
+  
+  # Get level of borrowing
+  reactive_LoB <- reactive({input$LoB})
+  reactive_wiq_scalar <- 
+    reactive({if (reactive_LoB() == 'Moderate'){0.3}
+      else if (reactive_LoB() == 'Strong'){0.1}
+      else{'unknown'}
+    })
 
   ### Now need to calculate results and draw the table. (in development)
   
   reactive_n <- reactive({
     if(!reactive_borrowing()) {
       NoBrwNi(sigma_vect(),r_vect(),input$eta,input$zeta,input$delta,input$ssq)
-      }
+    }
+    else{
+      nlm(MyBrwfun,
+             p=r_vect()*150, # default value is not important 
+             Ri = r_vect(),
+             sig02 = sigma_vect(),
+             s02 = input$ssq,
+             wiq=array(reactive_wiq_scalar(), dim = c(reactive_K(), reactive_K())),
+             cctrpar = 0.1,
+             dw=c(input$a1,input$b1),
+             br=c(input$a2,input$b2),
+             targEff=input$delta,
+             eta = input$eta,
+             zeta = input$zeta)$estimate}
     })
   
+  make_short_table <- reactive({if(!reactive_borrowing())
+  {TRUE}
+  else if (input$debug)
+  {TRUE}
+  else
+  {FALSE}  
+  })
+  
   output$table <- renderUI(
-    if (!reactive_borrowing()){ 
+    # short version bool creation needed as input is undefined for the no borrowing case
+   
+    if (make_short_table()){ 
                           renderTable(data.frame('k'=1:reactive_K(),
                          '\u03C3<sub>k</sub>'=sigma_vect(),
                          'n<sub>R</sub>' = as.integer(ceiling(reactive_n())),
                          'n<sub>T</sub>'=as.integer(reactive_n()*r_vect()+0.5),
                          'n<sub>C</sub>'=as.integer(reactive_n()*(1-r_vect())+0.5),
                          check.names=FALSE),
-              sanitize.colnames.function = function(x) x)}
+              sanitize.colnames.function = function(x) x)
+      }
+    else{
+      # long version
+        renderTable(data.frame('k'=1:reactive_K(),
+                               '\u03C3<sub>k</sub>'=sigma_vect(),
+                               'n float'= reactive_n(),
+                               'n<sub>R</sub>' = as.integer(ceiling(reactive_n())),
+                               'n<sub>T</sub>'=as.integer(reactive_n()*r_vect()+0.5),
+                               'n<sub>C</sub>'=as.integer(reactive_n()*(1-r_vect())+0.5),
+                               'Inequality Values' = MyBrwfunVect(reactive_n(),
+                                                                  Ri = r_vect(),
+                                                                  sig02 = sigma_vect(),
+                                                                  s02 = input$ssq,
+                                                                  wiq=array(reactive_wiq_scalar(), dim = c(reactive_K(), reactive_K())), 
+                                                                  cctrpar = 0.1,
+                                                                  dw=c(input$a1,input$b1),
+                                                                  br=c(input$a2,input$b2),
+                                                                  targEff=input$delta,
+                                                                  eta = input$eta,
+                                                                  zeta = input$zeta),
+                               'Inequality Values (with ints)' = MyBrwfunVect(as.integer(ceiling(reactive_n())),
+                                                                              Ri = r_vect(),
+                                                                              sig02 = sigma_vect(),
+                                                                              s02 = input$ssq,
+                                                                              wiq=array(reactive_wiq_scalar(), dim = c(reactive_K(), reactive_K())), 
+                                                                              cctrpar = 0.1,
+                                                                              dw=c(input$a1,input$b1),
+                                                                              br=c(input$a2,input$b2),
+                                                                              targEff=input$delta,
+                                                                              eta = input$eta,
+                                                                              zeta = input$zeta),
+                              check.names=FALSE),
+                sanitize.colnames.function = function(x) x)
+      }
+     
     )
   
 }
