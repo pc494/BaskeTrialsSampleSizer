@@ -25,6 +25,7 @@ fluidPage(
                   column(width=col_width),
                   ),
           materialSwitch(inputId = "use_equal_alloc_ratio_bool", label = "Use Equal Allocation Ratios (True/False)", value=FALSE ,status = "default"),
+          materialSwitch(inputId = "borrowing", label = "Are you using borrowing? (True/False)", value=FALSE ,status = "default"),
           materialSwitch(inputId = "debug", label = "Extra Table Detail? (True/False)", value=FALSE ,status = "default"),
           sliderTextInput(
             inputId = "LoB",

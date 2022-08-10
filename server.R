@@ -39,16 +39,28 @@ function(input, output, session){
   # write out all the hyper-parameter selections
   
   output$desc <- renderText(paste0("Results calculated with \u03B4=",input$delta,", \u03B7=",input$eta,', \u03B6=',input$zeta))
+  borrowing <- reactive({input$borrowing})
+  ### Clear all non-borrowing 
+  if (!borrowing()){
+  reactive_n <- reactive({NoBrwNi(sigma_vect(),r_vect(),input$eta,input$zeta,input$delta,input$ssq)})
+  
+  output$value <- renderTable(data.frame('k'=1:reactive_K(),
+                         '\u03C3<sub>k</sub>'=sigma_vect(),
+                         'n<sub>R</sub>' = as.integer(ceiling(reactive_n())),
+                         'n<sub>T</sub>'=as.integer(reactive_n()*r_vect()+0.5),
+                         'n<sub>C</sub>'=as.integer(reactive_n()*(1-r_vect())+0.5),
+                         check.names=FALSE),
+              sanitize.colnames.function = function(x) x)
+  }
+  
+  if (borrowing()){
   reactive_LoB <- reactive({input$LoB})
-  reactive_wiq_scalar <- 
-    reactive({if (reactive_LoB() == 'Moderate'){0.3}
-             else if (reactive_LoB() == 'Strong'){0.1}
+  reactive_wiq_scalar <- reactive({if (reactive_LoB() == 'Moderate'){0.3}
+                                  else if (reactive_LoB() == 'Strong'){0.1}
             })
   # perform calculations 
   
-      reactive_n <- reactive({
-        if (reactive_LoB() != 'No') 
-        {
+      reactive_n <- reactive({ 
           nlm(MyBrwfun,
               p=r_vect()*150, # default value is not important 
               Ri = r_vect(),
@@ -60,13 +72,7 @@ function(input, output, session){
               br=c(input$a2,input$b2),
               targEff=input$delta,
               eta = input$eta,
-              zeta = input$zeta)$estimate
-        }
-      else{
-        NoBrwNi(sigma_vect(),r_vect(),input$eta,input$zeta,input$delta,input$ssq)
-      }
-       
-      })
+              zeta = input$zeta)$estimate})
       
       
     # Render Output Table 
@@ -74,9 +80,8 @@ function(input, output, session){
     # add a debug switch here
     debug <- reactive({input$debug})
     
-    output$value <- 
-     renderUI(if (reactive_LoB() != 'No' && debug()) {
-     renderTable(data.frame('k'=1:reactive_K(),
+    output$value <- if (debug()) {
+      renderTable(data.frame('k'=1:reactive_K(),
                                '\u03C3<sub>k</sub>'=sigma_vect(),
                                'n float'= reactive_n(),
                                'n<sub>R</sub>' = as.integer(ceiling(reactive_n())),
@@ -106,6 +111,7 @@ function(input, output, session){
                                                                zeta = input$zeta),
                                check.names=FALSE),
                                sanitize.colnames.function = function(x) x)
+      
       }
     else{
       renderTable(data.frame('k'=1:reactive_K(),
@@ -116,5 +122,6 @@ function(input, output, session){
                              check.names=FALSE),
                              sanitize.colnames.function = function(x) x)
       
-    })
+      
+    }}
 }
