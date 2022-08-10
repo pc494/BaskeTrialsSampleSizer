@@ -37,6 +37,7 @@ function(input, output, session){
   })
   
   ### create an R list that is off, unless turned on, and then varies with the value of k ###
+  epsilon <- 0.05 # so that R can be close to, but not equal to, 1.
   reactive_use_equal_alloc_ratio<-reactive({input$use_equal_alloc_ratio_bool})
   output$allocratio <- renderUI(
     if (!reactive_use_equal_alloc_ratio()){
@@ -71,7 +72,7 @@ function(input, output, session){
       }
     })
   
-  output$table <- reactive({
+  output$table <- renderUI(
     if (!reactive_borrowing()){ 
                           renderTable(data.frame('k'=1:reactive_K(),
                          '\u03C3<sub>k</sub>'=sigma_vect(),
@@ -80,6 +81,6 @@ function(input, output, session){
                          'n<sub>C</sub>'=as.integer(reactive_n()*(1-r_vect())+0.5),
                          check.names=FALSE),
               sanitize.colnames.function = function(x) x)}
-    })
+    )
   
 }
