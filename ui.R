@@ -24,19 +24,13 @@ fluidPage(
                   column(width=col_width,uiOutput('allocratio')),
                   column(width=col_width),
                   ),
+          # for visual clarity we use an inversion on our switches
           materialSwitch(inputId = "use_equal_alloc_ratio_bool", label = "Use Equal Allocation Ratios (True/False)", value=FALSE ,status = "default"),
-          materialSwitch(inputId = "borrowing", label = "Are you using borrowing? (True/False)", value=FALSE ,status = "default"),
-          materialSwitch(inputId = "debug", label = "Extra Table Detail? (True/False)", value=FALSE ,status = "default"),
-          sliderTextInput(
-            inputId = "LoB",
-            label = "Level of Borrowing",
-            grid = FALSE,
-            force_edges = TRUE,
-            choices = c("No",
-                        "Moderate", "Strong")
-          ),
-          #actionButton("update" ,"Calculate", icon("refresh"),
-          #             class = "btn btn-primary"),
-          uiOutput("value"),
+          materialSwitch(inputId = "borrowing", label = "Are you using borrowing? (True/False)", value=TRUE ,status = "default"),
+          # only if borrowing
+          uiOutput("extra_table_switch"),
+          uiOutput("borrowing_slider"),
+          # always
+          tableOutput("table"),
           uiOutput("desc")
 )
