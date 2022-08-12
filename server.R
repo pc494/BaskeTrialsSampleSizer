@@ -85,6 +85,7 @@ function(input, output, session)
   
   reactive_n <- reactive({
     if(!reactive_borrowing()) {
+      req(is.numeric(r_vect()))
       NoBrwNi(sigma_vect(),r_vect(),input$eta,input$zeta,input$delta,input$ssq)
     }
     else{
