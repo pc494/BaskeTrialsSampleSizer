@@ -25,7 +25,8 @@ function(input, output, session)
     label = "Level of Borrowing",
     grid = FALSE,
     force_edges = TRUE,
-    choices = c("Moderate", "Strong")
+    choices = c("Moderate", "Strong"),
+    selected = "Moderate"
   )})
   
   # create a sigma list that varies length with the value of k #
@@ -72,10 +73,11 @@ function(input, output, session)
                     })
   
   # Get level of borrowing
-  reactive_LoB <- reactive({input$LoB})
   reactive_wiq_scalar <- 
-    reactive({if (reactive_LoB() == 'Moderate'){0.3}
-      else if (reactive_LoB() == 'Strong'){0.1}
+    reactive({
+      req(input$LoB) # we need a value of LoB
+      if (input$LoB == 'Moderate'){0.3}
+      else if (input$LoB == 'Strong'){0.1}
       else{'unknown'}
     })
 
@@ -100,12 +102,16 @@ function(input, output, session)
              zeta = input$zeta)$estimate}
     })
   
-  make_short_table <- reactive({if(!reactive_borrowing())
-  {TRUE}
-  else if (input$debug)
+  make_short_table <- reactive({
+  if(!reactive_borrowing())
   {TRUE}
   else
-  {FALSE}  
+    {req(input$debug) # we need a value of debug
+    if (input$debug)
+        {TRUE}
+    else
+        {FALSE}
+    }
   })
   
   output$table <- renderUI(
