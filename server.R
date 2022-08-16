@@ -2,6 +2,8 @@ source("subfun_and_simulators.R")
 
 function(input, output, session)
 {
+  col_width <- 2 #value should be the same as in ui.R 
+  
   ### This first section deals with adaptive element of the UI that do not involve direct mathematical calculation
   
   # are we using borrowing?
@@ -12,6 +14,15 @@ function(input, output, session)
   #output$desc <- renderText(str(r_vect()))
   
   # create the extra table information switch (if and only if we have borrowing turned on)
+  
+  output$borrowing_hyper_parameters <- renderUI(
+    if (reactive_borrowing()){
+    column(width=col_width,
+           numericInput("a1",HTML("a<sub>1</sub>"),2,min = 1,max = 20,step = 1,width = NULL),
+           numericInput("b1",HTML("b<sub>1</sub>"),2,min = 1,max = 20,step = 1,width = NULL),
+           numericInput("a2",HTML("a<sub>2</sub>"),54,min = 1,max = 1000,step = 1,width = NULL),
+           numericInput("b2",HTML("b<sub>2</sub>"),3,min = 1,max = 20,step = 1,width = NULL)
+  )})
   
   output$extra_table_switch <- renderUI(
     if (reactive_borrowing()){
@@ -107,7 +118,8 @@ function(input, output, session)
   if(!reactive_borrowing())
   {TRUE}
   else
-    {req(input$debug) # we need a value of debug
+    {
+    req(!is.null(input$debug)) # we need a value of debug
     if (input$debug)
         {TRUE}
     else
@@ -129,36 +141,36 @@ function(input, output, session)
       }
     else{
       # long version
-        renderTable(data.frame('k'=1:reactive_K(),
-                               '\u03C3<sub>k</sub>'=sigma_vect(),
-                               'n float'= reactive_n(),
-                               'n<sub>R</sub>' = as.integer(ceiling(reactive_n()*r_vect()) + ceiling(reactive_n()*(1-r_vect()))),
-                               'n<sub>T</sub>'=as.integer(ceiling(reactive_n()*r_vect())),
-                               'n<sub>C</sub>'=as.integer(ceiling(reactive_n()*(1-r_vect()))),
-                               'Inequality Values' = MyBrwfunVect(reactive_n(),
-                                                                  Ri = r_vect(),
-                                                                  sig02 = sigma_vect(),
-                                                                  s02 = input$ssq,
-                                                                  wiq=array(reactive_wiq_scalar(), dim = c(reactive_K(), reactive_K())), 
-                                                                  cctrpar = 0.1,
-                                                                  dw=c(input$a1,input$b1),
-                                                                  br=c(input$a2,input$b2),
-                                                                  targEff=input$delta,
-                                                                  eta = input$eta,
-                                                                  zeta = input$zeta),
-                               'Inequality Values (with ints)' = MyBrwfunVect(ceiling(reactive_n()*r_vect()) + ceiling(reactive_n()*(1-r_vect())),
-                                                                              Ri = r_vect(),
-                                                                              sig02 = sigma_vect(),
-                                                                              s02 = input$ssq,
-                                                                              wiq=array(reactive_wiq_scalar(), dim = c(reactive_K(), reactive_K())), 
-                                                                              cctrpar = 0.1,
-                                                                              dw=c(input$a1,input$b1),
-                                                                              br=c(input$a2,input$b2),
-                                                                              targEff=input$delta,
-                                                                              eta = input$eta,
-                                                                              zeta = input$zeta),
-                              check.names=FALSE),
-                sanitize.colnames.function = function(x) x)
+      renderTable(data.frame('k'=1:reactive_K(),
+                             '\u03C3<sub>k</sub>'=sigma_vect(),
+                             'n float'= reactive_n(),
+                             'n<sub>R</sub>' = as.integer(ceiling(reactive_n()*r_vect()) + ceiling(reactive_n()*(1-r_vect()))),
+                             'n<sub>T</sub>'=as.integer(ceiling(reactive_n()*r_vect())),
+                             'n<sub>C</sub>'=as.integer(ceiling(reactive_n()*(1-r_vect()))),
+                             'Inequality Values' = MyBrwfunVect(reactive_n(),
+                                                                Ri = r_vect(),
+                                                                sig02 = sigma_vect(),
+                                                                s02 = input$ssq,
+                                                                wiq=array(reactive_wiq_scalar(), dim = c(reactive_K(), reactive_K())), 
+                                                                cctrpar = 0.1,
+                                                                dw=c(input$a1,input$b1),
+                                                                br=c(input$a2,input$b2),
+                                                                targEff=input$delta,
+                                                                eta = input$eta,
+                                                                zeta = input$zeta),
+                             'Inequality Values (with ints)' = MyBrwfunVect(ceiling(reactive_n()*r_vect()) + ceiling(reactive_n()*(1-r_vect())),
+                                                                            Ri = r_vect(),
+                                                                            sig02 = sigma_vect(),
+                                                                            s02 = input$ssq,
+                                                                            wiq=array(reactive_wiq_scalar(), dim = c(reactive_K(), reactive_K())), 
+                                                                            cctrpar = 0.1,
+                                                                            dw=c(input$a1,input$b1),
+                                                                            br=c(input$a2,input$b2),
+                                                                            targEff=input$delta,
+                                                                            eta = input$eta,
+                                                                            zeta = input$zeta),
+                             check.names=FALSE),
+                  sanitize.colnames.function = function(x) x)
       }
      
     )
