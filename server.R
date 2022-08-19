@@ -10,7 +10,7 @@ function(input, output, session)
   reactive_borrowing <- reactive({!input$borrowing}) #this not character keeps the switch going the right way
   
   # write out all the hyper-parameter selections
-  output$desc <- renderText(paste0("Results calculated with \u03B4=",input$delta,", \u03B7=",input$eta,', \u03B6=',input$zeta))
+  output$desc <- renderText(paste0(HTML("Results calculated with \u03B4="),input$delta,HTML(", \u03B7="),input$eta,HTML(', \u03B6='),input$zeta))
   #output$desc <- renderText(str(r_vect()))
   
   # create the extra table information switch (if and only if we have borrowing turned on)
@@ -132,7 +132,7 @@ function(input, output, session)
    
     if (make_short_table()){ 
                           renderTable(data.frame('k'=1:reactive_K(),
-                         '\u03C3<sub>k</sub>'=sigma_vect(),
+                          '\u03C3<sub>k</sub>'=sigma_vect(),
                          'n<sub>R</sub>' = as.integer(ceiling(reactive_n()*r_vect()) + ceiling(reactive_n()*(1-r_vect()))),
                          'n<sub>T</sub>'=as.integer(ceiling(reactive_n()*r_vect())),
                          'n<sub>C</sub>'=as.integer(ceiling(reactive_n()*(1-r_vect()))),
