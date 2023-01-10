@@ -13,6 +13,8 @@ This functionality doesn't exist yet (sorry!), so you'll have to go the long way
 
 #### Developers
 
-Make sure you have a working R install (we used version 4.1.2 although any 4.x.y version ought to work) with RStudio\footnote{Due to the size of this project (ie. small) the developers are unable to provide documentation for less mainline apporaches to working with R packages}), if this sounds scary try the documentation at the RStudio [website](https://posit.co/download/rstudio-desktop/).
+Make sure you have a working R install (we used version 4.1.2 although any 4.x.y version ought to work) with RStudio[^1], if this sounds scary try the documentation at the RStudio [website](https://posit.co/download/rstudio-desktop/).
 
 Now download this repository (either with `git clone' or by taking a zip). In RStudio navigate to the top level folder. Open UI.R and install the required dependencies if prompted (this can take a couple of minutes for a fresh install). Once that's all done the 'Run App' button should boot you into the app and editing/adjustments proceed as normal.
+
+[^1]: Due to the size of this project (ie. small) the developers are unable to provide documentation for less mainline apporaches to working with R packages
