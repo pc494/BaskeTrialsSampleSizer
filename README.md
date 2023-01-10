@@ -9,4 +9,6 @@ Biostatistics, 2022;, kxac033
 DOI: https://doi.org/10.1093/biostatistics/kxac033  
 arxiv version: https://arxiv.org/abs/2205.12227
 
-The original code on which this app is based can be found [here](https://github.com/haiyanzheng/BasketTrialsSSD)
+The original code on which this app is based can be found [here](https://github.com/haiyanzheng/BasketTrialsSSD).
+
+For installation, see the [installation.md file](/installation.md).
